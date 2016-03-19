@@ -41,3 +41,15 @@ def dT_dr(kappa, rho, L, T, P, M, r):
     dT1 = abs( 3 * kappa * rho * L / ( 16 * pi * a * c * T**3 * r**2) )
     dT2 = abs( ( 1 - 1 / gamma) * ( T / P ) * ( G * M * rho ) / ( r**2 ) )
     return min(dT1, dT2)
+
+def dL_dr(r, rho, epsilon):
+    """
+    Luminosity gradient
+    """
+    return 4 * pi * r**2 * rho * epsilon
+
+def dtau_dr(kappa, rho):
+    """
+    Optical depth gradient
+    """
+    return kappa * rho
