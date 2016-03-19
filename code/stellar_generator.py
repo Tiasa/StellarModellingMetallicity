@@ -11,5 +11,13 @@ def diPdiT(rho, mu, T):
     The partial pressure gradient with respect to temperature
     """
     ideal_gas = rho * k / (mu * m_p)
-    radiative = 4/3 * a * T**3
+    photon_gas = 4/3 * a * T**3
     return ideal_gas + radiative
+
+def diPdirho(rho, mu, T):
+    """
+    The partial pressure gradient with respect to pressure
+    """
+    ideal_gas = k * T / (mu * m_p)
+    nonrel_degeneate = nonrelgenpress * rho**(2/3)
+    return ideal_gas + nonrel_degeneate

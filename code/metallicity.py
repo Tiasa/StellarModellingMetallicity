@@ -16,5 +16,6 @@ def isfractional(a, A):
     if not (0 < a < 1):
        raise Exception("{A} should be between 0 and 1 (is {a}).".format(A=A, a=a))
 
+# Tests
 print(getmu(0.7, 0.2))
 print(getmu(0.7, 0.4))
