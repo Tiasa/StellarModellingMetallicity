@@ -1,0 +1,11 @@
+Push Some Changes:
+
+From the command line while you are in the StellarModellingMetallicity, do:
+
+1. git add filename.txt/filename.py (for adding specific files or do “git add *” to add everything in the folder if you are sure there are no junk files. It might produce some warnings, ignore them)
+
+2. git commit -m “description of the commit”
+3. git push
+
+Syncing with the master / Getting other people’s changes:
+1. git pull
