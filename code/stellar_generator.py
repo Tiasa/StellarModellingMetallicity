@@ -1,5 +1,15 @@
-def test_fnc(a):
-    print a
+from __future__ import division, print_function
 
-test_fnc("Stars are cool!")
+from constants import *
+from energy_production import *
 
+def stellar_solver(T_c, rho_c):
+    pass
+
+def diPdiT(rho, mu, T):
+    """
+    The partial pressure gradient with respect to temperature
+    """
+    ideal_gas = rho * k / (mu * m_p)
+    radiative = 4/3 * a * T**3
+    return ideal_gas + radiative
