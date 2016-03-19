@@ -3,7 +3,25 @@ from __future__ import division, print_function
 from constants import *
 from energy_production import *
 
-def stellar_solver(T_c, rho_c):
+def stellar_solver(T_c, rho_c, X, Y):
+
+    r_0 = mach_ep
+    r_i = [0, r_0]
+    rho_i = [rho_c, rho_c]
+    T_i = [T_c, T_c]
+    M_i = [0, 4 * pi / 3 * r_0**3 * rho_c]
+    L_i = [0, M_i[1] * rho_c * ep(rho_c, X, T_c) ]
+
+    r = np.array(r_i)
+    M = np.array(M_i)
+    M = np.array(M_i)
+    M = np.array(M_i)
+    M = np.array(M_i)
+
+
+    while i < 100:
+
+        i++
     pass
 
 def diP_diT(rho, mu, T):
