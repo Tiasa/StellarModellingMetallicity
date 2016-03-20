@@ -6,6 +6,7 @@ from energy_production import *
 def stellar_solver(T_c, rho_c, X, Y):
 
     r_0 = mach_ep
+
     r_i = [0, r_0]
     rho_i = [rho_c, rho_c]
     T_i = [T_c, T_c]
@@ -14,8 +15,8 @@ def stellar_solver(T_c, rho_c, X, Y):
 
     r = np.array(r_i)
     M = np.array(M_i)
-    M = np.array(M_i)
-    M = np.array(M_i)
+    rho = np.array(rho_i)
+    T = np.array(T_i)
     M = np.array(M_i)
 
 
@@ -52,3 +53,22 @@ def dM_dr(r,rho):
     """
     return 4 * pi * r**2 * rho
 
+def dT_dr(kappa, rho, L, T, P, M, r):
+    """
+    Temperature gradient
+    """
+    dT1 = abs( 3 * kappa * rho * L / ( 16 * pi * a * c * T**3 * r**2) )
+    dT2 = abs( ( 1 - 1 / gamma) * ( T / P ) * ( G * M * rho ) / ( r**2 ) )
+    return min(dT1, dT2)
+
+def dL_dr(r, rho, ep):
+    """
+    Luminosity gradient
+    """
+    return 4 * pi * r**2 * rho * ep
+
+def dtau_dr(kappa, rho):
+    """
+    Optical depth gradient
+    """
+    return kappa * rho
