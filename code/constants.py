@@ -1,7 +1,7 @@
+import numpy as np
 from __future__ import division, print_function
 
 ## All the contants
-import numpy as np
 G = 6.673e-11 # Gravitational Constant
 c = 2.998e8   # Speed of light
 h = 6.626e-34 # Planck's constant
