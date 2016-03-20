@@ -18,4 +18,5 @@ pi = np.pi
 ep_pp_coeff = 1.07e-7 * 1e-5 * (1e-6)**4
 ep_cno_coeff = 8.24e-26 * 1e-5 * (1e-6)**19.9
 nonrelgenpress = (3 * pi)**(2/3)/3 * hbar**2/m_e * m_p**(-2/3)
+hbar = 1.055e-34 # hbar
 gamma = 8.3144598 # ideal gas constant
