@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Coefficients used to compute the independent variable argument of f
 
@@ -44,20 +45,21 @@ c3  =   5.489278752436647e-01  #  1408/2565
 c4  =   5.353313840155945e-01  #  2197/4104
 c5  =  -2.000000000000000e-01  # -1/5
 
+BUFFER = 2**14
+
 def functional_vector(f):
     if hasattr(f, '__call__'):
         return f
     return lambda x, t: np.array([fi(x,t) for fi in f])
 
-
 def rkf( f, a, b, x0, tol, hmax, hmin ):
-    """Runge-Kutta-Fehlberg method to solve x' = f(x,t) with x(t[0]) = x0.
+    """Vectorized Runge-Kutta-Fehlberg method to solve x' = f(x,t) with x(t[0]) = x0.
 
     USAGE:
-        t, x = rkf(f, a, b, x0, tol, hmax, hmin)
+        T, X = rkf(f, a, b, x0, tol, hmax, hmin)
 
     INPUT:
-        f     - function equal to dx/dt = f(x,t)
+        f     - an array that is the system of equations dvx/dt = vf(vx,t)
         a     - left-hand endpoint of interval (initial condition is here)
         b     - right-hand endpoint of interval
         x0    - initial x value: x0 = x(a)
@@ -66,8 +68,8 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
         hmin  - minimum step size
 
     OUTPUT:
-        t     - NumPy array of independent variable values
-        x     - NumPy array of corresponding solution function values
+        T     - NumPy array of independent variable values
+        X     - NumPy array of corresponding solution function values
 
     NOTES:
         This function implements 4th-5th order Runge-Kutta-Fehlberg Method
@@ -86,30 +88,32 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
     s = len(f)
     f = functional_vector(f)
 
-    # Set t and x according to initial condition and assume that h starts
-    # with a value that is as small as possible.
+    # Set t and x according to initial condition and assume that h begins with resonable value
 
     t = a
     x = x0
     h = hmin
 
-    max_samples = np.ceil(abs((b-a)/hmin))
+    # max_samples = np.ceil(abs((b-a)/hmin))
 
-    print("Sampling with maximum buffer {0}".format(max_samples))
+    print("Sampling with initial buffer {0}".format(BUFFER))
 
     # Initialize arrays that will be returned
 
-    T = np.empty( max_samples )
-    X = np.empty( [s, max_samples] )
+    T = np.empty( BUFFER )
+    X = np.empty( [s, BUFFER] )
 
     T[0] = t
     # print(x.shape)
     # print(X.shape)
     X[:,0] = x
 
-    i = 0
+    i = 1
     while t < b:
-        i += 1
+        if i >= len(T):
+            print("Increasing buffer by {0}".format(BUFFER))
+            T = np.hstack((T, np.empty(BUFFER)))
+            X = np.hstack((X, np.empty( [s, BUFFER] )))
 
         # Adjust step size when we get to last interval
 
@@ -137,11 +141,13 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
             x = x + c1 * k1 + c3 * k3 + c4 * k4 + c5 * k5
             T[i] = t
             X[:,i] = x
+            i += 1
 
         # Now compute next step size, and make sure that it is not too big or
         # too small.
 
-        h = h * min( max( 0.84 * ( tol / r )**0.25, 0.1 ), 4.0 )
+        h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.1 ), 4.0 )
+        # h = h * 0.84 * ( tol / (r + np.finfo(float).eps) )
 
         if h > hmax:
             h = hmax
@@ -155,3 +161,21 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
 
     print("Truncating buffer to {0} filled samples.".format(i))
     return ( T, X )
+
+
+# Tests
+def test_rkf():
+    f0 = lambda x, t: x[1]
+    f1 = lambda x, t: -x[0]
+    f2 = lambda x, t: x[3]
+    f3 = lambda x, t: -x[2]+x[1]/(x[4]**2+1)
+    f4 = lambda x, t: x[1]
+
+    T, X = rkf([f0, f1, f2, f3, f4], 0, 10*np.pi, [1, 0, 0, 0, 0], 1e-6, 1, 0.01)
+
+    plt.figure()
+    for i in range(X.shape[0]):
+        plt.plot(T, X[i,:])
+    plt.show()
+
+# test_rkf()
