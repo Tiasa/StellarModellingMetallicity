@@ -52,20 +52,18 @@ def functional_vector(f):
         return f
     return lambda x, t: np.array([fi(x,t) for fi in f])
 
-def rkf( f, a, b, x0, tol, hmax, hmin ):
+def rkf( f, a, x0, tol, stop ):
     """Vectorized Runge-Kutta-Fehlberg method to solve x' = f(x,t) with x(t[0]) = x0.
 
     USAGE:
-        T, X = rkf(f, a, b, x0, tol, hmax, hmin)
+        T, X = rkf(f, a, b, x0, tol)
 
     INPUT:
         f     - an array that is the system of equations dvx/dt = vf(vx,t)
         a     - left-hand endpoint of interval (initial condition is here)
-        b     - right-hand endpoint of interval
         x0    - initial x value: x0 = x(a)
         tol   - maximum value of local truncation error estimate
-        hmax  - maximum step size
-        hmin  - minimum step size
+        stop  - stopping condition func(i, vx, t)
 
     OUTPUT:
         T     - NumPy array of independent variable values
@@ -79,7 +77,7 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
            -- = f(x,t),     x(a) = x0
            dt
 
-        on the interval [a,b].
+        on the interval [a,...).
 
         Based on pseudocode presented in "Numerical Analysis", 6th Edition,
         by Burden and Faires, Brooks-Cole, 1997.
@@ -92,7 +90,8 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
 
     t = a
     x = x0
-    h = hmin
+    # h = hmin
+    h = 1e-6
 
     # max_samples = np.ceil(abs((b-a)/hmin))
 
@@ -108,17 +107,13 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
     # print(X.shape)
     X[:,0] = x
 
-    i = 1
-    while t < b:
-        if i >= len(T):
+    i = 0
+
+    while not stop(i,x,t):
+        if i + 1 >= len(T):
             print("Increasing buffer by {0}".format(BUFFER))
             T = np.hstack((T, np.empty(BUFFER)))
             X = np.hstack((X, np.empty( [s, BUFFER] )))
-
-        # Adjust step size when we get to last interval
-
-        if t + h > b:
-            h = b - t;
 
         # Compute values needed to compute truncation error estimate and
         # the 4th order RK estimate.
@@ -147,19 +142,13 @@ def rkf( f, a, b, x0, tol, hmax, hmin ):
         # too small.
 
         h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.1 ), 4.0 )
-        # h = h * 0.84 * ( tol / (r + np.finfo(float).eps) )
 
-        if h > hmax:
-            h = hmax
-        elif h < hmin:
-            print("Error: stepsize should be smaller than {0}.".format(hmin))
-            break
     # endwhile
 
-    T = T[0:i]
-    X = X[:,0:i]
+    T = T[0:i-1]
+    X = X[:,0:i-1]
 
-    print("Truncating buffer to {0} filled samples.".format(i))
+    print("Truncating buffer to {0} filled samples.".format(i-1))
     return ( T, X )
 
 
@@ -171,7 +160,9 @@ def test_rkf():
     f3 = lambda x, t: -x[2]+x[1]/(x[4]**2+1)
     f4 = lambda x, t: x[1]
 
-    T, X = rkf([f0, f1, f2, f3, f4], 0, 10*np.pi, [1, 0, 0, 0, 0], 1e-6, 1, 0.01)
+    stop = lambda i, x, t: t>10*np.pi
+
+    T, X = rkf([f0, f1, f2, f3, f4], 0, [1, 0, 0, 0, 0], 1e-6, stop)
 
     plt.figure()
     for i in range(X.shape[0]):

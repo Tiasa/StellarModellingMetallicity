@@ -1,8 +1,6 @@
 from __future__ import division, print_function
 
 from constants import *
-from energy_production import *
-from stellar_structure import *
 from composition import Composition
 from rkf import rkf
 import matplotlib.pyplot as plt
@@ -38,7 +36,7 @@ class Star():
         The partial pressure gradient with respect to pressure
         """
         ideal_gas = k * ss[temp] / (self.composition.mu * m_p)
-        nonrel_degenerate = nonrelgenpress * ss[density]**(2/3)
+        nonrel_degenerate = (5/3) * nonrelgenpress * ss[density]**(2/3)
         return ideal_gas + nonrel_degenerate
 
     def opacity(self, ss, r):
@@ -76,7 +74,7 @@ class Star():
         """
         Temperature gradient with respect to radius
         """
-        radiative = 3 * self.opacity(ss, r) * ss[density] * ss[lumin] / ( 16 * pi * a * c * ss[temp]**3 * r**2)
+        radiative = (3 * self.opacity(ss, r) * ss[density] * ss[lumin]) / ( 16 * pi * a * c * ss[temp]**3 * r**2)
         convective = ( 1 - 1 / gamma) * ( ss[temp] / self.pressure(ss, r) ) * ( G * ss[mass] * ss[density] ) / ( r**2 )
         return -min(radiative, convective)
 
@@ -123,16 +121,16 @@ class Star():
         ic[opt_depth] = 0 # ???
 
         system_DE = [self.drho_dr, self.dT_dr, self.dL_dr, self.dM_dr, self.dtau_dr] # Needs to match stellar state enum order above
-        R = 7e9
-        tolerance = 100
-        max_step = 1e10
-        min_step = 1e-10
+        tolerance = 1e5
 
-        r, ss = rkf(system_DE, r_0, R, ic, tolerance, max_step, min_step)
+        r, ss = rkf(system_DE, r_0, ic, tolerance, self.stop_condition)
 
         self.r_profile = r
         self.ss_profile = ss
         self.__solved = True
+
+    def stop_condition(self, i, ss, r):
+        return i > 32000
 
     def plot(self):
         if self.__solved is False:
@@ -153,6 +151,8 @@ class Star():
 
         steps = self.r_profile[1:] - self.r_profile[:-1]
         plt.figure()
+        plt.title("Step Size Required")
+        plt.gca().set_yscale("log")
         plt.plot(range(len(steps)), steps)
         plt.show()
 
@@ -168,7 +168,7 @@ class Star():
                 print(log_format.format(self.r_profile[i], *self.ss_profile[:, i]))
         if b>0:
             print("Printing last {0} data entires.".format(b))
-            for i in np.arange(min(size, size-b), size, 1):
+            for i in np.arange(max(min(size, size-b), 0), size, 1):
                 print(log_format.format(self.r_profile[i], *self.ss_profile[:, i]))
 
 
