@@ -276,7 +276,7 @@ class Star():
 test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.73, 0.25))
 
 test_star.solve()
-test_star.plot()
-test_star.plot_step_sizes()
 test_star.log_raw(b=20)
 test_star.log_solved_properties()
+test_star.plot_step_sizes()
+test_star.plot()
