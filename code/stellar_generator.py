@@ -273,7 +273,7 @@ class Star():
 
 # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
 # test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.73, 0.25))
+test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.75, 0.25))
 
 test_star.solve()
 test_star.log_raw(b=20)
