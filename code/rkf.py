@@ -120,7 +120,7 @@ def rkf( f, a, x0, tol, stop ):
             k5 = h * f( x + b51 * k1 + b52 * k2 + b53 * k3 + b54 * k4, t + a5 * h )
             k6 = h * f( x + b61 * k1 + b62 * k2 + b63 * k3 + b64 * k4 + b65 * k5, t + a6 * h )
         except ValueError:
-            # The step size must be too small
+            # The step size must be too large and it is interpolating to negative values
             h = h * 0.1
             continue
 
@@ -162,8 +162,9 @@ def test_rkf():
     f4 = lambda x, t: x[1]
 
     stop = lambda i, x, t: t > 10*np.pi
+    f = lambda x, t: np.array([f(x,t) for f in [f0, f1, f2, f3, f4]])
 
-    T, X = rkf([f0, f1, f2, f3, f4], 0, [1, 0, 0, 0, 0], 1e-6, stop)
+    T, X = rkf(f, 0, [1, 0, 0, 0, 0], 1e-6, stop)
 
     plt.figure()
     for i in range(X.shape[0]):
