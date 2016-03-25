@@ -47,11 +47,6 @@ c5  =  -2.000000000000000e-01  # -1/5
 
 BUFFER = 2**14
 
-def functional_vector(f):
-    if hasattr(f, '__call__'):
-        return f
-    return lambda x, t: np.array([fi(x,t) for fi in f])
-
 def rkf( f, a, x0, tol, stop ):
     """Vectorized Runge-Kutta-Fehlberg method to solve x' = f(x,t) with x(t[0]) = x0.
 
@@ -83,8 +78,7 @@ def rkf( f, a, x0, tol, stop ):
         by Burden and Faires, Brooks-Cole, 1997.
     """
 
-    s = len(f)
-    f = functional_vector(f)
+    s = len(x0)
 
     # Set t and x according to initial condition and assume that h begins with resonable value
 
@@ -95,7 +89,7 @@ def rkf( f, a, x0, tol, stop ):
 
     # max_samples = np.ceil(abs((b-a)/hmin))
 
-    print("Sampling with initial buffer {0}".format(BUFFER))
+    # print("Sampling with initial buffer {0}".format(BUFFER))
 
     # Initialize arrays that will be returned
 
@@ -111,19 +105,24 @@ def rkf( f, a, x0, tol, stop ):
 
     while not stop(i,x,t):
         if i + 1 >= len(T):
-            print("Increasing buffer by {0}".format(BUFFER))
+            # print("Increasing buffer by {0}".format(BUFFER))
             T = np.hstack((T, np.empty(BUFFER)))
             X = np.hstack((X, np.empty( [s, BUFFER] )))
 
         # Compute values needed to compute truncation error estimate and
         # the 4th order RK estimate.
 
-        k1 = h * f( x, t )
-        k2 = h * f( x + b21 * k1, t + a2 * h )
-        k3 = h * f( x + b31 * k1 + b32 * k2, t + a3 * h )
-        k4 = h * f( x + b41 * k1 + b42 * k2 + b43 * k3, t + a4 * h )
-        k5 = h * f( x + b51 * k1 + b52 * k2 + b53 * k3 + b54 * k4, t + a5 * h )
-        k6 = h * f( x + b61 * k1 + b62 * k2 + b63 * k3 + b64 * k4 + b65 * k5, t + a6 * h )
+        try:
+            k1 = h * f( x, t )
+            k2 = h * f( x + b21 * k1, t + a2 * h )
+            k3 = h * f( x + b31 * k1 + b32 * k2, t + a3 * h )
+            k4 = h * f( x + b41 * k1 + b42 * k2 + b43 * k3, t + a4 * h )
+            k5 = h * f( x + b51 * k1 + b52 * k2 + b53 * k3 + b54 * k4, t + a5 * h )
+            k6 = h * f( x + b61 * k1 + b62 * k2 + b63 * k3 + b64 * k4 + b65 * k5, t + a6 * h )
+        except ValueError:
+            # The step size must be too small
+            h = h * 0.1
+            continue
 
         # Compute the estimate of the local truncation error.  If it's small
         # enough then we accept this step and save the 4th order estimate.
@@ -141,14 +140,16 @@ def rkf( f, a, x0, tol, stop ):
         # Now compute next step size, and make sure that it is not too big or
         # too small.
 
-        h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.1 ), 4.0 )
+        # h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.1 ), 4.0 )
+        # h = h * min( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 4.0 )
+        h = h * 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25
 
     # endwhile
 
-    T = T[0:i-1]
-    X = X[:,0:i-1]
+    T = T[0:i]
+    X = X[:,0:i]
 
-    print("Truncating buffer to {0} filled samples.".format(i-1))
+    # print("Truncating buffer to {0} filled samples.".format(i-1))
     return ( T, X )
 
 
@@ -160,7 +161,7 @@ def test_rkf():
     f3 = lambda x, t: -x[2]+x[1]/(x[4]**2+1)
     f4 = lambda x, t: x[1]
 
-    stop = lambda i, x, t: t>10*np.pi
+    stop = lambda i, x, t: t > 10*np.pi
 
     T, X = rkf([f0, f1, f2, f3, f4], 0, [1, 0, 0, 0, 0], 1e-6, stop)
 
