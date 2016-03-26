@@ -41,35 +41,40 @@ class Star():
         nonrel_degenerate = (5/3) * nonrelgenpress * ss[density]**(2/3)
         return ideal_gas + nonrel_degenerate
 
+    def partial_opacity(self, ss, r):
+        # Electron Scattering Opacity
+        kes = 0.02 * (1+self.composition.X)
+        # Free-free Opacity
+        kff = 1e24 * (self.composition.Z+0.0001) * (ss[density]**0.7) * (ss[temp]**(-3.5))
+        # Hydrogen opacity
+        kH = 2.5e-32 * ((self.composition.Z+tiny_float)/0.02) * (ss[density]**0.5) * (ss[temp]**9)
+        # Avoid division by zero (kes, kff cant be zero) added tiny_float
+
+        return (kes, kff, kH)
+
     def opacity(self, ss, r):
         """
         Opacity of the star as it depends on composition, density and temperature
         """
-        ## Electron Scattering Opacity
-        kes = 0.2 * (1+self.composition.X)
-        ## Free-free Opacity
-        kff = 1e24 * (self.composition.Z+0.0001) * (ss[density]**0.7) * (ss[temp]**(-3.5))
-        ## Hydrogen opacity
-        kH = 2.5e-32 * ((self.composition.Z+tiny_float)/0.02) * (ss[density]**0.5) * (ss[temp]**9)
-        ## Kappa
-        # Avoid division by zero (kes, kff cant be zero) added tiny_float
+        (kes, kff, kH) = self.partial_opacity(ss,r)
+
         kappa = 1/((1/kH)+(1/max(kff,kes)))
         return kappa
 
-    def pressure_breakdown(self, ss, r):
+    def partial_pressure(self, ss, r):
         """
         Each of the three pressure sources at different points in th star
         """
         nonrel_degenerate = nonrelgenpress * ss[density]**(5/3)
         ideal_gas = k * ss[density] * ss[temp] / (self.composition.mu * m_p)
-        photon_gas = 4/3 * a * ss[temp]**4
+        photon_gas = 1/3 * a * ss[temp]**4
         return (nonrel_degenerate, ideal_gas, photon_gas)
 
     def pressure(self, ss, r):
         """
         Pressure at a given state in the star due to three competing effects
         """
-        return sum(self.pressure_breakdown(ss,r))
+        return sum(self.partial_pressure(ss,r))
 
     def energy_prod(self, ss, r):
         """Total energy production for a given X, density and temperature"""
@@ -84,14 +89,21 @@ class Star():
         """
         return (self.opacity(ss, r) * ss[density]**2) / abs(self.drho_dr(ss, r))
 
+    def partial_dT_dr(self, ss, r):
+        """
+        The two methods of energy transport
+        """
+        radiative = (3 * self.opacity(ss, r) * ss[density] * ss[lumin]) / ( 16 * pi * a * c * ss[temp]**3 * r**2)
+        convective = ( 1 - 1 / gamma) * ( ss[temp] / self.pressure(ss, r) ) * ( G * ss[mass] * ss[density] ) / ( r**2 )
+
+        return (radiative, convective)
+
     # Stellar Structure
     def dT_dr(self, ss, r):
         """
         Temperature gradient with respect to radius
         """
-        radiative = (3 * self.opacity(ss, r) * ss[density] * ss[lumin]) / ( 16 * pi * a * c * ss[temp]**3 * r**2)
-        convective = ( 1 - 1 / gamma) * ( ss[temp] / self.pressure(ss, r) ) * ( G * ss[mass] * ss[density] ) / ( r**2 )
-        return -min(radiative, convective)
+        return -min(*self.partial_dT_dr(ss, r))
 
     # Stellar Structure
     def drho_dr(self, ss, r):
