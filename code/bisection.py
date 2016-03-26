@@ -19,8 +19,6 @@ def bisection(f, a, b, tol):
             best_c = c
             best_f = f_c
 
-        # print("Error {0}".format(f_c))
-        # print("rho_c {0}".format(c))
         if (f_c == 0 or (b-a)/2 < tol):
             printProgress(n_max, n_max, "Complete")
             return best_c

@@ -85,7 +85,7 @@ def rkf( f, a, x0, tol, stop ):
     t = a
     x = x0
     # h = hmin
-    h = 1e-6
+    h = 1
 
     # max_samples = np.ceil(abs((b-a)/hmin))
 
@@ -124,42 +124,24 @@ def rkf( f, a, x0, tol, stop ):
             h = h * 0.5
             continue
 
-        # Compute the estimate of the local truncation error.  If it's small
-        # enough then we accept this step and save the 4th order estimate.
-
         fifth_order = x + r1 * k1 + r3 * k3 + r4 * k4 + r5 * k5 + r6 * k6
         fourth_order = x + c1 * k1 + c3 * k3 + c4 * k4 + c5 * k5
 
-        if (np.min(fourth_order) < 0):
-            h = h * 0.5
-            continue
-
-        # print(x)
-        # print(fifth_order)
-        # print(fourth_order)
-        # print(fifth_order - fourth_order)
-        # print(abs((fifth_order - fourth_order)/fifth_order) / h)
-        # print(np.max(abs((fifth_order - fourth_order)/fifth_order) / h))
-
-        error = np.max(abs((fifth_order - fourth_order)/fifth_order))
-        # error = np.max(abs(fifth_order - fourth_order) / np.sqrt(abs(fifth_order*fourth_order))) / h
-        # print(error, h)
+        error = np.max(abs((fifth_order - fourth_order)/(abs(fifth_order) + np.finfo(float).eps)))
 
         if error <= tol:
-            # print("-----")
             t = t + h
             x = fourth_order
             T[i] = t
             X[:,i] = x
-            # print(h, x, t)
             i += 1
 
         # Now compute next step size, and make sure that it is not too big or
         # too small.
         # print(h)
-        # h = h * min( max( 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25, 0.5 ), 2 )
+        h = h * min( max( 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25, 0.5 ), 2 )
         # h = h * min( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 4.0 )
-        h = h * 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25
+        # h = h * 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25
 
     # endwhile
 
@@ -181,7 +163,7 @@ def test_rkf():
     stop = lambda i, x, t: t > 10*np.pi
     f = lambda x, t: np.array([f(x,t) for f in [f0, f1, f2, f3, f4]])
 
-    T, X = rkf(f, 0, [1, 0, 0, 0, 0], 1e-6, stop)
+    T, X = rkf(f, 0, [1, 0, 0, 0, 0], 1, stop)
 
     plt.figure()
     for i in range(X.shape[0]):

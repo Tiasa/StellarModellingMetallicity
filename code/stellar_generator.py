@@ -127,9 +127,9 @@ class Star():
         density_c = bisection(self.solve_density_c_error, 1e3, 1e9, 0.01)
         # density_c = bisection(self.solve_density_c_error, 0.03, 500, 1)
 
+        print("---- Solving Star With Correct Central Density ---")
         (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, 0.01)
-
-        print("-------------- Solved --------------")
+        print("--------------------- Solved ---------------------")
 
         self.ss_profile = ss
         self.r_profile = r
@@ -138,7 +138,10 @@ class Star():
         self.density_c = density_c
         self.delta_tau_surf = delta_tau_surf
         self.lumin_surf_bb, self.lumin_surf_rkf = self.relative_surface_lumin(i_surf, ss, r)
-        self.t_surf = (self.lumin_surf_rkf / (4 * pi * sigma * self.r_surf**2))**(1/4)
+        self.temp_surf = (self.lumin_surf_rkf / (4 * pi * sigma * self.r_surf**2))**(1/4)
+        self.lumin_surf = self.ss_surf[lumin]
+        self.mass_surf = self.ss_surf[mass]
+        self.density = self.ss_surf[density]
 
         self.__solved = True
 
@@ -149,7 +152,7 @@ class Star():
         return lumin_surf_bb, lumin_surf_rkf
 
     def solve_density_c_error(self, density_c):
-        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.1)[0:3])
+        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.5)[0:3])
 
         error = (lumin_surf_rkf - lumin_surf_bb)/np.sqrt(lumin_surf_rkf * lumin_surf_bb)
         return error
@@ -248,7 +251,7 @@ class Star():
         print(log_format.format("Central density", self.density_c))
         print(log_format.format("Luminosity Blackbody", self.lumin_surf_bb))
         print(log_format.format("Luminosity RKF", self.lumin_surf_rkf))
-        print(log_format.format("Inferred Surface Temperature", self.t_surf))
+        print(log_format.format("Inferred Surface Temperature", self.temp_surf))
 
         self.log_ss()
         self.log_ss(self.ss_surf, self.r_surf)
@@ -277,7 +280,7 @@ class Star():
 # test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
+test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
 
 test_star.solve()
 test_star.log_raw(b=20)
