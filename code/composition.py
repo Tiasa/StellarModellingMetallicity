@@ -25,7 +25,7 @@ class Composition():
         return Composition(X, 1 - X - Z, Z)
 
 def isfractional(a, A):
-    if not (0 < a < 1):
+    if not (0 <= a <= 1):
        raise Exception("{A} should be between 0 and 1 (is {a}).".format(A=A, a=a))
 
 # Tests
