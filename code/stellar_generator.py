@@ -120,11 +120,14 @@ class Star():
         if self.__solved:
             return
 
-        density_c = bisection(self.solve_density_c_error, 1e-1, 1e10, 0.01)
-        # density_c = bisection(self.solve_density_c_error, 0.03*1.6e10, 500*1.6e10, 0.01)
+        # (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(1.5e3)
+        # raise Exception("fds")
+        # density_c = bisection(self.solve_density_c_error, 1e-1, 1e14, 0.01)
+        # density_c = bisection(self.solve_density_c_error, 1e4, 1e9, 0.01)
+        density_c = bisection(self.solve_density_c_error, 1e3, 1e9, 0.01)
         # density_c = bisection(self.solve_density_c_error, 0.03, 500, 1)
 
-        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c)
+        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, 0.01)
 
         print("-------------- Solved --------------")
 
@@ -146,7 +149,7 @@ class Star():
         return lumin_surf_bb, lumin_surf_rkf
 
     def solve_density_c_error(self, density_c):
-        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c)[0:3])
+        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.1)[0:3])
 
         error = (lumin_surf_rkf - lumin_surf_bb)/np.sqrt(lumin_surf_rkf * lumin_surf_bb)
         return error
@@ -159,7 +162,7 @@ class Star():
         else:
             return np.array([f(ss,r) for f in self.stellar_structure_eqns])
 
-    def solve_density_c(self, density_c):
+    def solve_density_c(self, density_c, tolerance):
         if self.__solved:
             return
 
@@ -175,7 +178,6 @@ class Star():
         ic[lumin] = ic[mass] * density_c * self.energy_prod(ic, r_0)
 
         # print(self.delta_tau_thres)
-        tolerance = 1e12
         tau_surf = 2/3
 
         r, ss = rkf(self.system_DE, r_0, ic, tolerance, self.stop_condition)
@@ -272,9 +274,10 @@ class Star():
                 self.log_ss(self.ss_profile[:, i], self.r_profile[i])
 
 # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
-test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
 
 test_star.solve()
 test_star.log_raw(b=20)

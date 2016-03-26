@@ -9,6 +9,7 @@ def bisection(f, a, b, tol):
     printProgress(0, n_max, "Bisection")
     f_a = f(a)
     f_b = f(b)
+    assert f_a * f_b < 0, "No root in range"
     best_c = None
     best_f = None
     while n <= n_max:

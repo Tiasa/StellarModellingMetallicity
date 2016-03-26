@@ -105,7 +105,7 @@ def rkf( f, a, x0, tol, stop ):
 
     while not stop(i,x,t):
         if i + 1 >= len(T):
-            # print("Increasing buffer by {0}".format(BUFFER))
+            print("Increasing buffer by {0}".format(BUFFER))
             T = np.hstack((T, np.empty(BUFFER)))
             X = np.hstack((X, np.empty( [s, BUFFER] )))
 
@@ -121,27 +121,45 @@ def rkf( f, a, x0, tol, stop ):
             k6 = h * f( x + b61 * k1 + b62 * k2 + b63 * k3 + b64 * k4 + b65 * k5, t + a6 * h )
         except ValueError:
             # The step size must be too large and it is interpolating to negative values
-            h = h * 0.1
+            h = h * 0.5
             continue
 
         # Compute the estimate of the local truncation error.  If it's small
         # enough then we accept this step and save the 4th order estimate.
 
-        r = abs( r1 * k1 + r3 * k3 + r4 * k4 + r5 * k5 + r6 * k6 ) / h
-        if len( np.shape( r ) ) > 0:
-            r = max( r )
-        if r <= tol:
+        fifth_order = x + r1 * k1 + r3 * k3 + r4 * k4 + r5 * k5 + r6 * k6
+        fourth_order = x + c1 * k1 + c3 * k3 + c4 * k4 + c5 * k5
+
+        if (np.min(fourth_order) < 0):
+            h = h * 0.5
+            continue
+
+        # print(x)
+        # print(fifth_order)
+        # print(fourth_order)
+        # print(fifth_order - fourth_order)
+        # print(abs((fifth_order - fourth_order)/fifth_order) / h)
+        # print(np.max(abs((fifth_order - fourth_order)/fifth_order) / h))
+
+        error = np.max(abs((fifth_order - fourth_order)/fifth_order))
+        # error = np.max(abs(fifth_order - fourth_order) / np.sqrt(abs(fifth_order*fourth_order))) / h
+        # print(error, h)
+
+        if error <= tol:
+            # print("-----")
             t = t + h
-            x = x + c1 * k1 + c3 * k3 + c4 * k4 + c5 * k5
+            x = fourth_order
             T[i] = t
             X[:,i] = x
+            # print(h, x, t)
             i += 1
 
         # Now compute next step size, and make sure that it is not too big or
         # too small.
-        # h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.01 ), 100 )
+        # print(h)
+        # h = h * min( max( 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25, 0.5 ), 2 )
         # h = h * min( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 4.0 )
-        h = h * 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25
+        h = h * 0.84 * ( tol / (error + np.finfo(float).eps) )**0.25
 
     # endwhile
 
