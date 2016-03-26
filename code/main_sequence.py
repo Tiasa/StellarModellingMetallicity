@@ -5,9 +5,15 @@ from composition import Composition
 from rkf import rkf
 from bisection import bisection
 import matplotlib.pyplot as plt
+from matplotlib import rc
 from stellar_generator import Star
-# Main sequence class 
-# USAGE : 
+
+# Computer modern fonts
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+rc('text', usetex=True)
+
+# Main sequence class
+# USAGE :
 #       ms = MainSequence(min_core_temp = $some temp$, max_core_temp = $some temp$, X = $some comp$, Y = $some comp$, num_of_stars = $some num$)
 #
 # INPUT:
@@ -44,7 +50,7 @@ class MainSequence():
              p.start()
         for p in procs:
             p.join()
-       
+
     def plot(self):
         ## For synchromization create process safe array
         temp = Array("d",[0]*self.num_of_stars)
@@ -55,10 +61,12 @@ class MainSequence():
         print (tempArr)
         print (luminArr)
         plt.figure()
-        plt.title("Main Sequence")
-        plt.xlabel("Temparature")
-        plt.ylabel("L/L_sun")
+        plt.title(r"Main Sequence")
+        plt.xlabel(r"Temparature")
+        plt.ylabel(r"$L/L_\ocirc$")
         plt.plot(tempArr,luminArr)
         plt.show()
-ms = MainSequence(min_core_temp=3.5e7,max_core_temp=9e5,X=0.73,Y=0.25,num_of_stars=10)
-ms.plot()
+
+if __name__ == "__main__":
+    ms = MainSequence(min_core_temp=3.5e7,max_core_temp=9e5,X=0.73,Y=0.25,num_of_stars=10)
+    ms.plot()
