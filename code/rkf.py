@@ -139,8 +139,7 @@ def rkf( f, a, x0, tol, stop ):
 
         # Now compute next step size, and make sure that it is not too big or
         # too small.
-
-        # h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.1 ), 4.0 )
+        # h = h * min( max( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 0.01 ), 100 )
         # h = h * min( 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25, 4.0 )
         h = h * 0.84 * ( tol / (r + np.finfo(float).eps) )**0.25
 

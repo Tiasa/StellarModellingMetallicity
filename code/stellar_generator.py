@@ -51,13 +51,10 @@ class Star():
         ## Free-free Opacity
         kff = 1e24 * (self.composition.Z+0.0001) * (ss[density]**0.7) * (ss[temp]**(-3.5))
         ## Hydrogen opacity
-        kH = 2.5e-32 * (self.composition.Z/0.02) * (ss[density]**0.5) * (ss[temp]**9)
+        kH = 2.5e-32 * ((self.composition.Z+tiny_float)/0.02) * (ss[density]**0.5) * (ss[temp]**9)
         ## Kappa
-        # Avoid division by zero (kes cant be zero)
-        if (kH == 0):
-            kappa = max(kff,kes)
-        else:
-            kappa = 1/((1/kH)+(1/max(kff,kes)))
+        # Avoid division by zero (kes, kff cant be zero) added tiny_float
+        kappa = 1/((1/kH)+(1/max(kff,kes)))
         return kappa
 
     def pressure(self, ss, r):
@@ -123,7 +120,8 @@ class Star():
         if self.__solved:
             return
 
-        density_c = bisection(self.solve_density_c_error, 0.03*1.6e5, 500*1.6e5, 0.01)
+        density_c = bisection(self.solve_density_c_error, 1e-1, 1e10, 0.01)
+        # density_c = bisection(self.solve_density_c_error, 0.03*1.6e10, 500*1.6e10, 0.01)
         # density_c = bisection(self.solve_density_c_error, 0.03, 500, 1)
 
         (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c)
@@ -156,6 +154,8 @@ class Star():
     def system_DE(self, ss, r):
         if np.min(ss) < 0:
             raise ValueError("Stellar state values are negative.")
+        # elif np.isinf(self.opacity(ss, r)) or np.isnan(self.opacity(ss, r)):
+        #     raise ValueError("Opacity too big.")
         else:
             return np.array([f(ss,r) for f in self.stellar_structure_eqns])
 
@@ -175,7 +175,7 @@ class Star():
         ic[lumin] = ic[mass] * density_c * self.energy_prod(ic, r_0)
 
         # print(self.delta_tau_thres)
-        tolerance = 1e10
+        tolerance = 1e12
         tau_surf = 2/3
 
         r, ss = rkf(self.system_DE, r_0, ic, tolerance, self.stop_condition)
@@ -242,7 +242,7 @@ class Star():
     def log_solved_properties(self):
         print(" ------ Solved Variables ------ ")
         log_format = "{0:40} {1:10.10E}"
-        print(log_format.format("Delta tau surface", self.delta_tau_surf))
+        print(log_format.format("Delta tau surface (2/3 = 6.7E-1)", self.delta_tau_surf))
         print(log_format.format("Central density", self.density_c))
         print(log_format.format("Luminosity Blackbody", self.lumin_surf_bb))
         print(log_format.format("Luminosity RKF", self.lumin_surf_rkf))
@@ -272,8 +272,9 @@ class Star():
                 self.log_ss(self.ss_profile[:, i], self.r_profile[i])
 
 # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
-# test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.75, 0.25))
+test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 1.5e7, composition=Composition.fromXY(0.73, 0.25))
 
 test_star.solve()
 test_star.log_raw(b=20)

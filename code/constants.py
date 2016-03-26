@@ -18,5 +18,6 @@ pi = np.pi
 ep_pp_coeff = 1.07e-7 * 1e-5 * (1e-6)**4
 ep_cno_coeff = 8.24e-26 * 1e-5 * (1e-6)**19.9
 nonrelgenpress = (3 * pi)**(2/3)/5 * hbar**2/m_e * m_p**(-5/3)
-mach_ep = np.finfo(float).eps
+mach_ep = np.finfo(np.float64).eps
+tiny_float = 1e-50
 gamma = 5/3 # ideal gas constant

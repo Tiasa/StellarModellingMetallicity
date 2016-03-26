@@ -6,6 +6,7 @@ def bisection(f, a, b, tol):
     n_max = np.ceil(np.log2(abs(b-a) / tol))
 
     n = 1
+    printProgress(0, n_max, "Bisection")
     f_a = f(a)
     f_b = f(b)
     best_c = None
