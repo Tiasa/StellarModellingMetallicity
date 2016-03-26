@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 
 ## All the contants
-G = 6.673e-11 # Gravitational Constant
+G = 6.674e-11 # Gravitational Constant
 c = 2.998e8   # Speed of light
 h = 6.626e-34 # Planck's constant
 hbar = h / (2 * np.pi)
@@ -10,7 +10,7 @@ k = 1.381e-23 # Boltzmann Constant
 sigma = 5.670e-8 # Stefan-Boltzmann Constant
 m_e = 9.109e-31 # Electron mass
 M_s = 1.989e30 # Mass of Sun
-R_s = 6.955e5 # Radius of Sun
+R_s = 6.963e8 # Radius of Sun
 L_s = 3.839e26 # Luminosity of Sun
 m_p = 1.6726219e-27 # Mass of proton
 a = 4 * sigma / c
