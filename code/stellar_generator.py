@@ -20,10 +20,10 @@ class Star():
     def __init__(self, temp_c, composition):
         self.composition = composition
         self.temp_c = temp_c
-        self.delta_tau_thres = 1e-10
+        self.delta_tau_thres = 1e-20
         self.stellar_structure_eqns = [self.drho_dr, self.dT_dr, self.dL_dr, self.dM_dr] # Needs to match stellar state enum order above
         self.stellar_structure_size = ss_size
-        self.__solved = False
+        self.is_solved = False
 
     def diP_diT(self, ss, r):
         """
@@ -56,14 +56,20 @@ class Star():
         kappa = 1/((1/kH)+(1/max(kff,kes)))
         return kappa
 
-    def pressure(self, ss, r):
+    def pressure_breakdown(self, ss, r):
         """
-        Pressure at a given state in the star due to three competing effects
+        Each of the three pressure sources at different points in th star
         """
         nonrel_degenerate = nonrelgenpress * ss[density]**(5/3)
         ideal_gas = k * ss[density] * ss[temp] / (self.composition.mu * m_p)
         photon_gas = 4/3 * a * ss[temp]**4
-        return nonrel_degenerate + ideal_gas + photon_gas
+        return (nonrel_degenerate, ideal_gas, photon_gas)
+
+    def pressure(self, ss, r):
+        """
+        Pressure at a given state in the star due to three competing effects
+        """
+        return sum(self.pressure_breakdown(ss,r))
 
     def energy_prod(self, ss, r):
         """Total energy production for a given X, density and temperature"""
@@ -116,7 +122,7 @@ class Star():
         return - self.opacity(ss, r) * ss[density]
 
     def solve(self):
-        if self.__solved:
+        if self.is_solved:
             return
 
         # (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(1.5e3)
@@ -130,6 +136,7 @@ class Star():
         (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, 0.01)
         print("--------------------- Solved ---------------------")
 
+        self.i_surf = i_surf
         self.ss_profile = ss
         self.r_profile = r
         self.ss_surf = ss[:,i_surf]
@@ -142,7 +149,7 @@ class Star():
         self.mass_surf = self.ss_surf[mass]
         self.density = self.ss_surf[density]
 
-        self.__solved = True
+        self.is_solved = True
 
     def relative_surface_lumin(self, i, ss, r):
         lumin_surf_bb = 4 * pi * sigma * r[i]**2 * ss[temp, i]**4
@@ -151,7 +158,7 @@ class Star():
         return lumin_surf_bb, lumin_surf_rkf
 
     def solve_density_c_error(self, density_c):
-        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.5)[0:3])
+        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.7)[0:3])
 
         error = (lumin_surf_rkf - lumin_surf_bb)/np.sqrt(lumin_surf_rkf * lumin_surf_bb)
         return error
@@ -165,7 +172,7 @@ class Star():
             return np.array([f(ss,r) for f in self.stellar_structure_eqns])
 
     def solve_density_c(self, density_c, tolerance):
-        if self.__solved:
+        if self.is_solved:
             return
 
         temp_c = self.temp_c
@@ -221,7 +228,7 @@ class Star():
         return False
 
     def log_solved_properties(self):
-        print(" ------ Solved Variables ------ ")
+        print("------- Solved Variables -------")
         log_format = "{0:40} {1:10.10E}"
         print(log_format.format("Delta tau surface (2/3 = 6.7E-1)", self.delta_tau_surf))
         print(log_format.format("Central density", self.density_c))
@@ -251,15 +258,3 @@ class Star():
             self.log_ss()
             for i in np.arange(max(min(size, size-b), 0), size, 1):
                 self.log_ss(self.ss_profile[:, i], self.r_profile[i])
-
-# test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
-# test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
-
-test_star.solve()
-test_star.log_raw(b=20)
-test_star.log_solved_properties()
-test_star.plot_step_sizes()
-test_star.plot()
