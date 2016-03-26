@@ -4,7 +4,6 @@ from constants import *
 from composition import Composition
 from rkf import rkf
 from bisection import bisection
-import matplotlib.pyplot as plt
 
 # --- Stellar State Enum ---
 ss_size = 4
@@ -221,29 +220,6 @@ class Star():
             return True
         return False
 
-    def plot(self):
-        if self.__solved is False:
-            self.solve()
-
-        for i in range(self.ss_profile.shape[0]):
-            plt.figure()
-            plt.title("{0} vs. Radius".format(readable_strings[i+1]))
-            plt.xlabel("Radius")
-            plt.ylabel(readable_strings[i+1])
-            plt.plot(self.r_profile, self.ss_profile[i, :])
-            plt.show()
-
-    def plot_step_sizes(self):
-        if self.__solved is False:
-            self.solve()
-
-        steps = self.r_profile[1:] - self.r_profile[:-1]
-        plt.figure()
-        plt.title("Step Size Required")
-        plt.gca().set_yscale("log")
-        plt.plot(range(len(steps)), steps)
-        plt.show()
-
     def log_solved_properties(self):
         print(" ------ Solved Variables ------ ")
         log_format = "{0:40} {1:10.10E}"
@@ -280,7 +256,7 @@ class Star():
 # test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.75, 0.25))
+test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
 
 test_star.solve()
 test_star.log_raw(b=20)
