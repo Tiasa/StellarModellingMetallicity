@@ -170,7 +170,7 @@ class Star():
         return lumin_surf_bb, lumin_surf_rkf
 
     def solve_density_c_error(self, density_c):
-        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.7)[0:3])
+        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.4)[0:3])
 
         error = (lumin_surf_rkf - lumin_surf_bb)/np.sqrt(lumin_surf_rkf * lumin_surf_bb)
         return error
