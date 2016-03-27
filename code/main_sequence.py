@@ -41,7 +41,7 @@ class MainSequence():
         star =  Star(temp_c = t, composition=self.composition)
         star.solve()
         star.log_solved_properties()
-        self.make_entry(star.temp_surf,star.lumin_surf_bb,index,temp,lumin)
+        self.make_entry(star.temp_surf,star.lumin_surf,index,temp,lumin)
     def calculate(self,temp,lumin):
         core_temp = np.linspace(start=self.min_core_temp,stop=self.max_core_temp,num=self.num_of_stars)
         procs = []
