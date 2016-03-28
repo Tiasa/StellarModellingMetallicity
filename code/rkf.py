@@ -105,7 +105,7 @@ def rkf( f, a, x0, tol, stop ):
 
     while not stop(i,x,t):
         if i + 1 >= len(T):
-            print("Increasing buffer by {0}".format(BUFFER))
+            # print("Increasing buffer by {0}".format(BUFFER))
             T = np.hstack((T, np.empty(BUFFER)))
             X = np.hstack((X, np.empty( [s, BUFFER] )))
 

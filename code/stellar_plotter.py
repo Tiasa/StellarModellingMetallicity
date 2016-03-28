@@ -69,7 +69,8 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.show()
+    plt.savefig("../figures/ss_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    # plt.show()
 
     # Plotting pressure decomposition
     plt.figure()
@@ -83,7 +84,8 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.show()
+    plt.savefig("../figures/pp_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    # plt.show()
 
     # Plotting opacity decomposition
     plt.figure()
@@ -97,7 +99,8 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.show()
+    plt.savefig("../figures/po_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    # plt.show()
 
 def plot_step_sizes(star):
     if not star.is_solved:
@@ -116,6 +119,7 @@ def plot_step_sizes(star):
 # test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
+# test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
 test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
 

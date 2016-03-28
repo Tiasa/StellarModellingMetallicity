@@ -44,6 +44,7 @@ class MainSequence():
         self.make_entry(star.temp_surf,star.lumin_surf,index,temp,lumin)
     def calculate(self,temp,lumin):
         core_temp = np.linspace(start=self.min_core_temp,stop=self.max_core_temp,num=self.num_of_stars)
+        print(core_temp)
         procs = []
         for idx, t in enumerate(core_temp):
              p = Process(target=self.make_star,args=(t,idx,temp,lumin))
@@ -65,12 +66,13 @@ class MainSequence():
         plt.title(r"Main Sequence")
         plt.xlabel(r"Temparature")
         plt.ylabel(r"$L/L_{\odot}$")
-        plt.plot(tempArr,luminArr,"ro")
+        plt.plot(tempArr,luminArr)
         plt.gca().invert_xaxis()
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
+        plt.savefig("../figures/main_sequence_{0}_stars.pdf".format(self.num_of_stars), format="pdf")
         plt.show()
 
 if __name__ == "__main__":
-    ms = MainSequence(min_core_temp=9e6,max_core_temp=25e6,X=0.73,Y=0.25,num_of_stars=10)
+    ms = MainSequence(min_core_temp=5e6,max_core_temp=3.5e7,X=0.73,Y=0.25,num_of_stars=20)
     ms.plot()
