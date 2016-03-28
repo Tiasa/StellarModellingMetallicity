@@ -3,7 +3,7 @@ from __future__ import division, print_function
 from constants import *
 from composition import Composition
 from rkf import rkf
-from adaptive_bisection import adaptive_bisection
+from bisection import bisection
 
 # --- Stellar State Enum ---
 ss_size = 4
@@ -81,7 +81,7 @@ class Star():
         X = self.composition.X
         ep_pp = ep_pp_coeff * ss[density] * X**2 * ss[temp]**4
         ep_cno = ep_cno_coeff * ss[density] * X * (X * 0.03) * ss[temp]**19.9 # X_CNO = X * 0.03?
-        return ep_pp + ep_cno
+        return (ep_pp, ep_cno)
 
     def delta_tau(self, ss, r):
         """
@@ -124,7 +124,21 @@ class Star():
         """
         Luminosity gradient with respect to radius
         """
-        return self.dM_dr(ss, r) * self.energy_prod(ss, r)
+        return 4 * pi * r**2 * ss[density] * sum(self.energy_prod(ss, r))
+
+    # Stellar Structure
+    def dL_dr_pp(self, ss, r):
+        """
+	Luminosity gradient from PP chain with respect to radius
+	"""
+	return 4 * pi * r**2 * ss[density] * self.energy_prod(ss, r)[0]
+    
+    # Stellar Structure
+    def dL_dr_cno(self, ss, r):
+        """
+	Luminosity gradient from CNO cycle with respect to radius
+	"""
+	return 4 * pi * r**2 * ss[density] * self.energy_prod(ss, r)[1]
 
     # Stellar Structure
     def dtau_dr(self, ss, r):
@@ -139,13 +153,13 @@ class Star():
 
         # (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(1.5e3)
         # raise Exception("fds")
-        # density_c = adaptive_bisection(self.solve_density_c_error, 1e-1, 1e14, 0.01)
-        # density_c = adaptive_bisection(self.solve_density_c_error, 1e4, 1e9, 0.01)
-        density_c = adaptive_bisection(self.solve_density_c_error, 1e2, 1e6, precision = 0.01)
-        # density_c = adaptive_bisection(self.solve_density_c_error, 0.03, 500, 1)
+        # density_c = bisection(self.solve_density_c_error, 1e-1, 1e14, 0.01)
+        # density_c = bisection(self.solve_density_c_error, 1e4, 1e9, 0.01)
+        density_c = bisection(self.solve_density_c_error, 1e3, 1e9, 0.01)
+        # density_c = bisection(self.solve_density_c_error, 0.03, 500, 1)
 
         print("---- Solving Star With Correct Central Density ---")
-        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, tol = 0.01)
+        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, 0.01)
         print("--------------------- Solved ---------------------")
 
         self.i_surf = i_surf
@@ -169,8 +183,8 @@ class Star():
 
         return lumin_surf_bb, lumin_surf_rkf
 
-    def solve_density_c_error(self, density_c, tol):
-        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, tol)[0:3])
+    def solve_density_c_error(self, density_c):
+        lumin_surf_bb, lumin_surf_rkf = self.relative_surface_lumin(*self.solve_density_c(density_c, 0.7)[0:3])
 
         error = (lumin_surf_rkf - lumin_surf_bb)/np.sqrt(lumin_surf_rkf * lumin_surf_bb)
         return error
@@ -183,7 +197,7 @@ class Star():
         else:
             return np.array([f(ss,r) for f in self.stellar_structure_eqns])
 
-    def solve_density_c(self, density_c, tol):
+    def solve_density_c(self, density_c, tolerance):
         if self.is_solved:
             return
 
@@ -196,12 +210,12 @@ class Star():
         ic[density] = density_c
         ic[temp] = temp_c
         ic[mass] = 4 * pi / 3 * r_0**3 * density_c
-        ic[lumin] = ic[mass] * self.energy_prod(ic, r_0)
+        ic[lumin] = ic[mass] * density_c * sum(self.energy_prod(ic, r_0))
 
         # print(self.delta_tau_thres)
         tau_surf = 2/3
 
-        r, ss = rkf(self.system_DE, r_0, ic, tol, self.stop_condition)
+        r, ss = rkf(self.system_DE, r_0, ic, tolerance, self.stop_condition)
 
         surfaced = False
 
