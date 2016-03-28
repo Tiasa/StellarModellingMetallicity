@@ -120,25 +120,21 @@ class Star():
         return 4 * pi * r**2 * ss[density]
 
     # Stellar Structure
-    def dL_dr(self, ss, r):
+    def partial_dL_dr(self, ss, r):
         """
         Luminosity gradient with respect to radius
         """
-        return 4 * pi * r**2 * ss[density] * sum(self.energy_prod(ss, r))
+        dL_dr_pp = 4 * pi * r**2 * ss[density] * self.energy_prod(ss,r)[0]
+        dL_dr_cno = 4 * pi * r**2 * ss[density] * self.energy_prod(ss,r)[1]
+        return (dL_dr_pp, dL_dr_cno)
 
     # Stellar Structure
-    def dL_dr_pp(self, ss, r):
-        """
-	Luminosity gradient from PP chain with respect to radius
+    def dL_dr(self, ss, r):
+    	"""
+	Luminosity gradient with respect to radius
 	"""
-	return 4 * pi * r**2 * ss[density] * self.energy_prod(ss, r)[0]
-    
-    # Stellar Structure
-    def dL_dr_cno(self, ss, r):
-        """
-	Luminosity gradient from CNO cycle with respect to radius
-	"""
-	return 4 * pi * r**2 * ss[density] * self.energy_prod(ss, r)[1]
+	(dL_dr_pp, dL_dr_cno) = self.partial_dL_dr(ss, r)
+	return dL_dr_pp + dL_dr_cno
 
     # Stellar Structure
     def dtau_dr(self, ss, r):

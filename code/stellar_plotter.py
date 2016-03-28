@@ -29,6 +29,7 @@ def plot_star(star):
     pressure_c = star.pressure(central, r_0)
     pressure_p = np.zeros([4, i_count])
     opacity_p = np.zeros([4, i_count])
+    dL_dr_p = np.zeros([3, i_count])
     is_convective = np.zeros(i_count)
     for i in xrange(i_count):
         ss_i = star.ss_profile[:, i]
@@ -40,6 +41,10 @@ def plot_star(star):
         partial_opacity = star.partial_opacity(ss_i, r_i)
         opacity_p[0, i] = star.opacity(ss_i, r_i)
         opacity_p[1:4, i] = [k for k in partial_opacity]
+
+        partial_dL_dr = star.partial_dL_dr(ss_i, r_i)
+        dL_dr_p[0, i] = star.dL_dr(ss_i, r_i)
+        dL_dr_p[1:3, i] = [k for k in partial_dL_dr]
 
         partital_energy_trans = star.partial_dT_dr(ss_i, r_i)
         radiative, convective = partital_energy_trans
@@ -55,6 +60,7 @@ def plot_star(star):
     n_density = density_p / star.density_c
     n_pressure = pressure_p / pressure_c
     n_opacity = np.log10(opacity_p)
+    n_dL_dr = dL_dr_p * r_surf / lumin_surf
     n_ss = [n_density, n_temp, n_lumin, n_mass]
 
     # Plot for stellar state values
@@ -85,6 +91,23 @@ def plot_star(star):
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
     plt.savefig("../figures/pp_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    # plt.show()
+
+    # Plotting luminosity decomposition
+    plt.figure()
+    plt.title(r"Partial Luminosities")
+    plt.xlabel(r"Radius ($r/R_*$)")
+    plt.ylabel(r"dL/dr (L$_*$/R$_*$)")
+    n_pl_labels = [r"dL/dr", r"dL$_{\mathrm{PP}}$/dr", r"dL$_{\mathrm{CNO}}$/dr"]
+    plots = [plt.plot(n_r, n_dL_dr_i)[0] for n_dL_dr_i in n_dL_dr]
+    plots[1].set_dashes([4,4])
+    plots[2].set_dashes([8,4,2,4])
+    plt.axis([0,n_r[-1],0,max(n_dL_dr[0])*1.5])
+    plt.legend(plots, n_pl_labels, loc="best")
+    plt.gca().set_autoscale_on(False)
+    for region in convective_regions:
+        plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
+    plt.savefig("../figures/pl_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
     # plt.show()
 
     # Plotting opacity decomposition
