@@ -114,7 +114,7 @@ class MainSequence():
         # Main Sequence
         plt.figure()
         plt.title(r"Main Sequence")
-        plt.xlabel(r"Temparature")
+        plt.xlabel(r"Temperature (K)")
         plt.ylabel(r"$L/L_{\odot}$")
         plt.plot(temp_surf,lumin_surf, "x")
         plt.gca().invert_xaxis()
