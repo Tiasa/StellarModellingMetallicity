@@ -97,8 +97,8 @@ def plot_star(star):
     plt.figure()
     plt.title(r"Partial Luminosities")
     plt.xlabel(r"Radius ($r/R_*$)")
-    plt.ylabel(r"$\mathrm{d}/\mathrm{d}r$ ($L_*/R_*$)")
-    n_pl_labels = [r"\mathrm{d}L/\mathrm{d}r", r"\mathrm{d}L$_{\mathrm{PP}}$/\mathrm{d}r", r"\mathrm{d}L$_{\mathrm{CNO}}$/\mathrm{d}r"]
+    plt.ylabel(r"$\mathrm{d}L/\mathrm{d}r$ ($L_*/R_*$)")
+    n_pl_labels = [r"$\mathrm{d}L/\mathrm{d}r$", r"$\mathrm{d}L_{\mathrm{PP}}/\mathrm{d}r$", r"$\mathrm{d}L_{\mathrm{CNO}}/\mathrm{d}r$"]
     plots = [plt.plot(n_r, n_dL_dr_i)[0] for n_dL_dr_i in n_dL_dr]
     plots[1].set_dashes([4,4])
     plots[2].set_dashes([8,4,2,4])

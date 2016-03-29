@@ -139,7 +139,7 @@ class Star():
     	"""
     	Luminosity gradient with respect to radius
     	"""
-    	return self.partial_dL_dr(ss, r)
+    	return sum(self.partial_dL_dr(ss, r))
 
     # Stellar Structure
     def dtau_dr(self, ss, r):
