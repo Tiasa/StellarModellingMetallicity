@@ -120,7 +120,7 @@ class MainSequence():
         plt.gca().invert_xaxis()
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        #plt.savefig("../figures/main_sequence_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        plt.savefig("../figures/main_sequence_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
         # L/L_sun as a function of M/M_sun
@@ -132,7 +132,7 @@ class MainSequence():
         plt.plot(mass_surf,lumin_surf,"bx")
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        #plt.savefig("../figures/LvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        plt.savefig("../figures/LvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
         ## R/R_sun as a function of M/M_sun
@@ -144,7 +144,7 @@ class MainSequence():
         plt.plot(mass_surf, r_surf,"bx")
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        #plt.savefig("../figures/RvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        plt.savefig("../figures/RvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
 if __name__ == "__main__":
