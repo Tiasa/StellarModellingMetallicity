@@ -156,11 +156,11 @@ class Star():
         # raise Exception("fds")
         # density_c = adaptive_bisection(self.solve_density_c_error, 1e-1, 1e14, 0.01)
         # density_c = adaptive_bisection(self.solve_density_c_error, 1e4, 1e9, 0.01)
-        density_c = adaptive_bisection(self.solve_density_c_error, 1e2, 1e6, precision = 0.01)
+        density_c, tol = adaptive_bisection(self.solve_density_c_error, 1, 1e8)
         # density_c = adaptive_bisection(self.solve_density_c_error, 0.03, 500, 1)
 
         print("---- Solving Star With Correct Central Density ---")
-        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, tol = 0.01)
+        (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, tol)
         print("--------------------- Solved ---------------------")
 
         self.i_surf = i_surf
@@ -175,6 +175,7 @@ class Star():
         self.lumin_surf = self.ss_surf[lumin]
         self.mass_surf = self.ss_surf[mass]
         self.density = self.ss_surf[density]
+        self.data_size = len(r)
 
         self.is_solved = True
 
@@ -243,10 +244,10 @@ class Star():
     def stop_condition(self, i, ss, r):
         delta_tau = self.delta_tau(ss, r)
         mass_limit = 1e3 * M_s
-        if ss[mass] > mass_limit:
+        # if ss[mass] > mass_limit:
             # print(delta_tau)
             # print("Terminating star due to mass limit.")
-            return True
+            # return True
         if delta_tau < self.delta_tau_thres:
             # print(i,ss,r)
             # print(delta_tau)
@@ -262,6 +263,7 @@ class Star():
         print(log_format.format("Luminosity Blackbody", self.lumin_surf_bb))
         print(log_format.format("Luminosity RKF", self.lumin_surf_rkf))
         print(log_format.format("Inferred Surface Temperature", self.temp_surf))
+        print(log_format.format("Data Size", self.data_size))
 
         self.log_ss()
         self.log_ss(self.ss_surf, self.r_surf)
