@@ -32,7 +32,7 @@ star_attributes_to_pickle = [ # Must be serializable attributes
     'temp_surf',
     'lumin_surf',
     'mass_surf',
-    'density',
+    'density_surf',
     'data_size',
 ]
 
