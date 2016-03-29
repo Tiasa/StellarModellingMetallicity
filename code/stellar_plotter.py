@@ -1,9 +1,12 @@
 from __future__ import division, print_function
 
 from matplotlib import rc
+import os
 import matplotlib.pyplot as plt
 from stellar_generator import *
 from constants import gamma,mach_ep
+from composition import Composition
+from main_sequence import MainSequence
 from where_positive import where_positive
 
 # Computer modern fonts
@@ -172,19 +175,98 @@ def plot_step_sizes(star):
     plt.plot(range(len(steps)), steps)
     plt.show()
 
+def lumin_mass_exact(m):
+    if m < 0.7:
+        return 0.35*m**2.62
+    else:
+        return 1.02*m**3.92
+vlme = np.vectorize(lumin_mass_exact)
 
-# test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
-# test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
-# test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
+def radius_mass_exact(m):
+    if m < 1.66:
+        return 1.06*m**0.945
+    else:
+        return 1.33*m**0.555
+vrme = np.vectorize(radius_mass_exact)
 
-test_star.solve()
-# test_star.log_raw(b=20)
-test_star.log_solved_properties()
+def plot_main_sequence(v_main_seq):
+    for main_seq in v_main_seq:
+        if not main_seq.solved:
+            main_seq.solve()
 
-# plot_step_sizes(test_star)
-plot_star(test_star)
+
+    labels = [r"$Z = {Z}$".format(Z=main_seq.composition.Z) for main_seq in v_main_seq]
+    num_stars = sum([main_seq.num_stars for main_seq in v_main_seq])
+    num_seqs = len(v_main_seq)
+
+    main_seq_folder = "../figures/main_sequence_{0}_stars_{1}_seq/".format(num_stars, num_seqs)
+    if not os.path.exists(main_seq_folder):
+        os.makedirs(main_seq_folder)
+
+    padding = 0.2
+    # Main Sequence
+    plt.figure()
+    plt.title(r"Main Sequence")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"$L/L_{\odot}$")
+    plots = [plt.plot(main_seq.temp_surf, main_seq.n_lumin_surf, "+")[0] for main_seq in v_main_seq]
+    plt.legend(plots, labels, loc="best")
+    plt.gca().invert_xaxis()
+    plt.gca().set_yscale("log")
+    plt.gca().set_xscale("log")
+    plt.savefig(main_seq_folder + "ms.pdf", format="pdf")
+    plt.show()
+
+    merge_mass_surf = [main_seq.n_mass_surf for main_seq in v_main_seq]
+    mass_space = np.linspace(np.min(merge_mass_surf)*(1 - padding), np.max(merge_mass_surf)*(1 + padding), 300)
+
+    # L/L_sun as a function of M/M_sun
+    plt.figure()
+    plt.title("$L/L_{\odot}$ as a function of $M/M_{\odot}$")
+    plt.xlabel(r"$M/M_{\odot}$")
+    plt.ylabel(r"$L/L_{\odot}$")
+    plots = [plt.plot(main_seq.n_mass_surf,main_seq.n_lumin_surf,"+")[0] for main_seq in v_main_seq]
+    plots.append(plt.plot(mass_space,vlme(mass_space),"r--")[0])
+    plt.legend(plots, labels + ["Empirical"], loc="best")
+    plt.gca().set_yscale("log")
+    plt.gca().set_xscale("log")
+    plt.savefig(main_seq_folder + "LvM.pdf", format="pdf")
+    plt.show()
+
+    ## R/R_sun as a function of M/M_sun
+    plt.figure()
+    plt.title("$R/R_{\odot}$ as a function of $M/M_{\odot}$")
+    plt.xlabel(r"$M/M_{\odot}$")
+    plt.ylabel(r"$R/R_{\odot}$")
+    plots = [plt.plot(main_seq.n_mass_surf,main_seq.n_r_surf,"+")[0] for main_seq in v_main_seq]
+    plots.append(plt.plot(mass_space,vrme(mass_space),"r--")[0])
+    plt.legend(plots, labels + ["Empirical"], loc="best")
+    plt.gca().set_yscale("log")
+    plt.gca().set_xscale("log")
+    plt.savefig(main_seq_folder + "RvM.pdf", format="pdf")
+    plt.show()
+
+if __name__ == "__main__":
+    # Remember to turn off logging in adaptive_bisection.py
+    composition = [Composition.fromZX(Z, 0.73) for Z in [0.00, 0.01, 0.015, 0.02, 0.03]]
+    v_main_seq = [MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=comp, num_stars=5) for comp in composition]
+    for main_seq in v_main_seq:
+        main_seq.solve_stars()
+
+    plot_main_sequence(v_main_seq)
+
+    # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
+    # test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
+    # test_star = Star(temp_c = 1.2e10, composition=Composition.fromXY(0.73, 0.25))
+    # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
+    # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
+    # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
+    # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
+    # test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.75, 0.25))
+
+    # test_star.solve()
+    # # # test_star.log_raw(b=20)
+    # test_star.log_solved_properties()
+
+    # # # plot_step_sizes(test_star)
+    # plot_star(test_star)

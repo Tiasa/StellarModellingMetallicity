@@ -159,7 +159,7 @@ class Star():
         # raise Exception("fds")
         # density_c = adaptive_bisection(self.solve_density_c_error, 1e-1, 1e14, 0.01)
         # density_c = adaptive_bisection(self.solve_density_c_error, 1e4, 1e9, 0.01)
-        density_c, tol = adaptive_bisection(self.solve_density_c_error, 1, 1e8)
+        density_c, tol = adaptive_bisection(self.solve_density_c_error, 1, 1e10)
         # density_c = adaptive_bisection(self.solve_density_c_error, 0.03, 500, 1)
 
         # print("---- Solving Star With Correct Central Density ---")

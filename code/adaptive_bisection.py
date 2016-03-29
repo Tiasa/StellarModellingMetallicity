@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 eval_tol_max = 0.5
 eval_tol_min = 0.02
 
-LOG = True
+LOG = False
 
 def tween(i, a, b):
     assert (0 <= i <= 1), "i needs to be normalized"
@@ -20,7 +20,9 @@ def adaptive_bisection(f, a, b, precision=0.001):
     if LOG: printProgress(0, n_max, "Bisection")
     f_a = f(a, eval_tol_max)
     f_b = f(b, eval_tol_max)
-    assert f_a * f_b < 0, "No root in range"
+    if f_a * f_b > 0:
+        print(f_a, f_b)
+        raise Exception("No root in range")
     best_c = None
     best_f = None
     best_tol = None
