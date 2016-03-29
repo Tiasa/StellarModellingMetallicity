@@ -11,6 +11,8 @@ class Composition():
         self.Y = Y
         self.Z = Z
         self.mu = 1 / (2 * X + 0.75 * Y + 0.5 * Z)
+        self.string = "X={X}, Y={Y}, Z={Z}".format(X=X, Y=Y, Z=Z)
+        self.file_string = "_X-{X}, Y-{Y}, Z-{Z}_".format(X=X, Y=Y, Z=Z)
 
     @staticmethod
     def fromXY(X,Y):

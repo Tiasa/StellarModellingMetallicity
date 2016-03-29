@@ -41,6 +41,9 @@ class Star():
         nonrel_degenerate = (5/3) * nonrelgenpress * ss[density]**(2/3)
         return ideal_gas + nonrel_degenerate
 
+    def dP_dr(self, ss, r):
+        return - (G * ss[mass] * ss[density])/(r**2)
+
     def partial_opacity(self, ss, r):
         # Electron Scattering Opacity
         kes = 0.02 * (1+self.composition.X)

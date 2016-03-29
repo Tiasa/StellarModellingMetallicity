@@ -3,6 +3,7 @@ from __future__ import division, print_function
 from matplotlib import rc
 import matplotlib.pyplot as plt
 from stellar_generator import *
+from constants import gamma,mach_ep
 from where_positive import where_positive
 
 # Computer modern fonts
@@ -12,6 +13,8 @@ rc('text', usetex=True)
 def plot_star(star):
     if not star.is_solved:
         star.solve()
+
+    star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
 
     i_surf = star.i_surf
     i_count = len(star.r_profile)
@@ -31,10 +34,14 @@ def plot_star(star):
     opacity_p = np.zeros([4, i_count])
     dL_dr_p = np.zeros([3, i_count])
     is_convective = np.zeros(i_count)
+    radiative = np.zeros(i_count)
+    convective = np.zeros(i_count)
+    pressure_grad = np.zeros(i_count)
     for i in xrange(i_count):
         ss_i = star.ss_profile[:, i]
         r_i = star.r_profile[i]
         partial_pressure = star.partial_pressure(ss_i, r_i)
+        pressure_grad[i] = star.dP_dr(ss_i, r_i)
         pressure_p[0, i] = sum(partial_pressure)
         pressure_p[1:4, i] = [p for p in partial_pressure]
 
@@ -47,8 +54,8 @@ def plot_star(star):
         dL_dr_p[1:3, i] = [k for k in partial_dL_dr]
 
         partital_energy_trans = star.partial_dT_dr(ss_i, r_i)
-        radiative, convective = partital_energy_trans
-        if (radiative > convective):
+        radiative[i], convective[i] = partital_energy_trans
+        if (radiative[i] > convective[i]):
             is_convective[i] = 1
 
     convective_regions = where_positive(is_convective)
@@ -63,6 +70,15 @@ def plot_star(star):
     n_dL_dr = dL_dr_p * r_surf / lumin_surf
     n_ss = [n_density, n_temp, n_lumin, n_mass]
 
+    # dlogP_dlogT = - (temp_p / pressure_p[0]) * pressure_grad / np.minimum(radiative, convective)
+    # dlogP_dlogT = - (temp_p / pressure_p[0]) * pressure_grad / np.minimum(radiative, convective)
+    logP = np.log(pressure_p[0])[:i_surf]
+    logT = np.log(temp_p)[:i_surf]
+    dlogP = logP[1:] - logP[:-1]
+    dlogT = logT[1:] - logT[:-1]
+
+    dlogP_dlogT = dlogP/(dlogT+mach_ep)
+
     # Plot for stellar state values
     plt.figure()
     plt.title(r"Normalized Stellar State")
@@ -75,7 +91,7 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.savefig("../figures/ss_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    plt.savefig(star_file_name.format(prefix="stellar_state"), format="pdf")
     # plt.show()
 
     # Plotting pressure decomposition
@@ -90,7 +106,7 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.savefig("../figures/pp_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    plt.savefig(star_file_name.format(prefix="partial_pressure"), format="pdf")
     # plt.show()
 
     # Plotting luminosity decomposition
@@ -107,7 +123,7 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.savefig("../figures/pl_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    plt.savefig(star_file_name.format(prefix="partial_lumin"), format="pdf")
     # plt.show()
 
     # Plotting opacity decomposition
@@ -122,7 +138,27 @@ def plot_star(star):
     plt.gca().set_autoscale_on(False)
     for region in convective_regions:
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
-    plt.savefig("../figures/po_star_temp_c_{0:3E}.pdf".format(star.temp_c), format="pdf")
+    plt.savefig(star_file_name.format(prefix="partial_opacity"), format="pdf")
+    # plt.show()
+
+    # Plotting logPlogT
+    plt.figure()
+    plt.title(r"Convective Stability")
+    plt.xlabel(r"Radius ($r/R_*$)")
+    plt.ylabel(r"$\mathrm{d}\log P/\mathrm{d}\log T$")
+    n_lPlT_labels = [r"Convective boundary $(1 - 1/\gamma)$", r"Star"]
+    plots = []
+    log_points = len(dlogP_dlogT)
+    boundary = np.zeros(log_points)
+    boundary.fill(1/(1-1/gamma))
+    plots.append(plt.plot(n_r[:log_points], boundary)[0])
+    plots.append(plt.plot(n_r[:log_points], dlogP_dlogT)[0])
+    plt.axis([0,n_r[log_points], 0, np.max(dlogP_dlogT) * 1.3])
+    plt.legend(plots, n_lPlT_labels, loc="best")
+    plt.gca().set_autoscale_on(False)
+    for region in convective_regions:
+        plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
+    plt.savefig(star_file_name.format(prefix="dlogP_dlogT"), format="pdf")
     # plt.show()
 
 def plot_step_sizes(star):
