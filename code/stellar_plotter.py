@@ -143,8 +143,8 @@ def plot_step_sizes(star):
 # test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
 # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
 # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
-test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-# test_star = Star(temp_c = 1e6, composition=Composition.fromXY(0.73, 0.25))
+# test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
+test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
 
 test_star.solve()
 # test_star.log_raw(b=20)

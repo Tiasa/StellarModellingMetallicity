@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 eval_tol_max = 0.5
 eval_tol_min = 0.02
 
-LOG = False
+LOG = True
 
 def tween(i, a, b):
     assert (0 <= i <= 1), "i needs to be normalized"

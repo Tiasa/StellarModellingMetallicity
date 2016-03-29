@@ -45,9 +45,9 @@ class Star():
         # Electron Scattering Opacity
         kes = 0.02 * (1+self.composition.X)
         # Free-free Opacity
-        kff = 1e24 * (self.composition.Z+0.0001) * (ss[density]**0.7) * (ss[temp]**(-3.5))
+        kff = 1e24 * (self.composition.Z+0.0001) * ((ss[density] * 1e-3)**0.7) * (ss[temp]**(-3.5))
         # Hydrogen opacity
-        kH = 2.5e-32 * ((self.composition.Z+tiny_float)/0.02) * (ss[density]**0.5) * (ss[temp]**9)
+        kH = 2.5e-32 * ((self.composition.Z+tiny_float)/0.02) * ((ss[density] * 1e-3)**0.5) * (ss[temp]**9)
         # Avoid division by zero (kes, kff cant be zero) added tiny_float
 
         return (kes, kff, kH)
