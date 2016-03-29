@@ -13,8 +13,8 @@ from timing_profiler import timing
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
-N_CORES = multiprocessing.cpu_count()
-PROCESSES_PER_CORE = 2
+N_CORES = multiprocessing.cpu_count() - 1
+PROCESSES_PER_CORE = 1
 LOG = True
 
 star_attributes_to_pickle = [ # Must be serializable attributes
@@ -106,7 +106,7 @@ class MainSequence():
         padding = 0.2
 
         temp_surf = np.array([star.temp_surf for star in self.stars])
-        lumin_surf = np.array([star.lumin_surf for star in self.stars]) / L_s
+        lumin_surf = np.array([star.lumin_surf_bb for star in self.stars]) / L_s
         mass_surf = np.array([star.mass_surf for star in self.stars]) / M_s
         r_surf = np.array([star.r_surf for star in self.stars]) / R_s
         mass_space = np.linspace(np.min(mass_surf)*(1 - padding), np.max(mass_surf)*(1 + padding), 300)
@@ -150,6 +150,6 @@ class MainSequence():
 if __name__ == "__main__":
     LOG_BS = False
     LOG_SG = False
-    main_seq = MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=Composition.fromXY(0.73,0.25), num_stars=5)
+    main_seq = MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=Composition.fromXY(0.73,0.25), num_stars=8)
     main_seq.solve_stars()
     main_seq.plot()
