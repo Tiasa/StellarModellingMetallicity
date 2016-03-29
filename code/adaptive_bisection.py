@@ -3,19 +3,21 @@ import numpy as np
 from progress import printProgress
 import matplotlib.pyplot as plt
 
-eval_tol_max = 0.6
+eval_tol_max = 0.5
 eval_tol_min = 0.02
+
+LOG = False
 
 def tween(i, a, b):
     assert (0 <= i <= 1), "i needs to be normalized"
 
     return a + ((1-i) * i**(2) + (i) * i**(1/6)) * (b - a)
 
-def adaptive_bisection(f, a, b, precision=0.0001):
+def adaptive_bisection(f, a, b, precision=0.001):
     n_max = np.ceil(np.log2(abs(b-a) / precision))
 
     n = 1
-    printProgress(0, n_max, "Bisection")
+    if LOG: printProgress(0, n_max, "Bisection")
     f_a = f(a, eval_tol_max)
     f_b = f(b, eval_tol_max)
     assert f_a * f_b < 0, "No root in range"
@@ -41,7 +43,7 @@ def adaptive_bisection(f, a, b, precision=0.0001):
             best_tol = tol
 
         if (f_c == 0 or (b-a)/2 < precision):
-            printProgress(n_max, n_max, "Complete")
+            if LOG: printProgress(n_max, n_max, "Complete")
             # print("Error",  best_f, best_c)
             # plt.figure()
             # plt.plot(cs, fs, 'ro')
@@ -49,7 +51,7 @@ def adaptive_bisection(f, a, b, precision=0.0001):
             # plt.gca().set_autoscale_on(False)
             # plt.show()
             return (best_c, best_tol)
-        printProgress(n, n_max, "Bisection")
+        if LOG: printProgress(n, n_max, "Bisection")
         n = n+1
         if (f_c * f_a > 0):
             a, f_a = c, f_c

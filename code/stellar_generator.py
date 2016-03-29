@@ -159,9 +159,9 @@ class Star():
         density_c, tol = adaptive_bisection(self.solve_density_c_error, 1, 1e8)
         # density_c = adaptive_bisection(self.solve_density_c_error, 0.03, 500, 1)
 
-        print("---- Solving Star With Correct Central Density ---")
+        # print("---- Solving Star With Correct Central Density ---")
         (i_surf, ss, r, delta_tau_surf) = self.solve_density_c(density_c, tol)
-        print("--------------------- Solved ---------------------")
+        # print("--------------------- Solved ---------------------")
 
         self.i_surf = i_surf
         self.ss_profile = ss
