@@ -148,6 +148,7 @@ class MainSequence():
         plt.show()
 
 if __name__ == "__main__":
+    # Remember to turn off logging in adaptive_bisection.py
     main_seq = MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=Composition.fromXY(0.73,0.25), num_stars=8)
     main_seq.solve_stars()
     main_seq.plot()
