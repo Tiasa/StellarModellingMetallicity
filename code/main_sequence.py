@@ -120,7 +120,7 @@ class MainSequence():
         plt.gca().invert_xaxis()
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        plt.savefig("../figures/main_sequence_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        #plt.savefig("../figures/main_sequence_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
         # L/L_sun as a function of M/M_sun
@@ -132,7 +132,7 @@ class MainSequence():
         plt.plot(mass_surf,lumin_surf,"bx")
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        plt.savefig("../figures/LvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        #plt.savefig("../figures/LvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
         ## R/R_sun as a function of M/M_sun
@@ -144,11 +144,11 @@ class MainSequence():
         plt.plot(mass_surf, r_surf,"bx")
         plt.gca().set_yscale("log")
         plt.gca().set_xscale("log")
-        plt.savefig("../figures/RvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
+        #plt.savefig("../figures/RvM_{0}_stars.pdf".format(self.num_stars), format="pdf")
         plt.show()
 
 if __name__ == "__main__":
     # Remember to turn off logging in adaptive_bisection.py
-    main_seq = MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=Composition.fromXY(0.73,0.25), num_stars=8)
+    main_seq = MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=Composition.fromXY(0.73,0.25), num_stars=100)
     main_seq.solve_stars()
     main_seq.plot()
