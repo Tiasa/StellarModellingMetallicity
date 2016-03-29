@@ -177,7 +177,7 @@ class Star():
         self.temp_surf = (self.lumin_surf_rkf / (4 * pi * sigma * self.r_surf**2))**(1/4)
         self.lumin_surf = self.ss_surf[lumin]
         self.mass_surf = self.ss_surf[mass]
-        self.density = self.ss_surf[density]
+        self.density_surf = self.ss_surf[density]
         self.data_size = len(r)
 
         self.is_solved = True

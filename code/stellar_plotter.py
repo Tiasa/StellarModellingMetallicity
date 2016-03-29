@@ -8,6 +8,7 @@ from constants import gamma,mach_ep
 from composition import Composition
 from main_sequence import MainSequence
 from where_positive import where_positive
+import os
 
 # Computer modern fonts
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
@@ -17,8 +18,16 @@ def plot_star(star):
     if not star.is_solved:
         star.solve()
 
-    star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
-
+    star_dir_name = "../figures/star_comp-{comp}_Tc-{temp_c}".format(comp = star.composition.file_string,temp_c=star.temp_c)
+    # Previous file name
+    #star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
+    star_file_name = (star_dir_name+"/{prefix}.pdf").format(prefix="{prefix}")
+    if not os.path.exists(os.path.dirname(star_file_name)):
+        try:
+            os.makedirs(os.path.dirname(star_file_name))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
     i_surf = star.i_surf
     i_count = len(star.r_profile)
     lumin_surf = star.lumin_surf
@@ -28,6 +37,7 @@ def plot_star(star):
     lumin_p = star.ss_profile[lumin, :]
     mass_p = star.ss_profile[mass, :]
     density_p = star.ss_profile[density, :]
+    density_c = star.density_c
     temp_p = star.ss_profile[temp, :]
     central = star.ss_profile[:, 0]
     r = star.r_profile
@@ -163,6 +173,22 @@ def plot_star(star):
         plt.axvspan(n_r[region[0]], n_r[region[1]], color='gray', alpha=0.4)
     plt.savefig(star_file_name.format(prefix="dlogP_dlogT"), format="pdf")
     # plt.show()
+    ## Saving the star specifics
+    ## We are targetting :
+    ## 1. Surface Temp
+    ## 2. Central density
+    ## 3. Central Temparature
+    ## 4. Radius
+    ## 5. Mass
+    ## 6. Luminosity
+    f = open(star_dir_name+'/profile.txt', 'w')
+    f.write('Surface Temparature = '+ repr(temp_surf) + '\n')
+    f.write('Central Density = '+repr(density_c)+'\n')
+    f.write('Radius = '+repr(r_surf)+'\n')
+    f.write('Mass = '+repr(mass_surf)+'\n')
+    f.write('Luminosity = '+ repr(lumin_surf) +'\n')
+    f.close()
+
 
 def plot_step_sizes(star):
     if not star.is_solved:

@@ -84,8 +84,6 @@ class MainSequence():
         if LOG: printProgress(self.num_stars, self.num_stars, "Workers")
 
         self.stars = stars
-        self.solved = True
-
         self.temp_surf = np.array([star.temp_surf for star in self.stars])
         self.lumin_surf = np.array([star.lumin_surf for star in self.stars])
         self.n_lumin_surf = self.lumin_surf / L_s
@@ -93,3 +91,4 @@ class MainSequence():
         self.n_mass_surf = self.mass_surf / M_s
         self.r_surf = np.array([star.r_surf for star in self.stars])
         self.n_r_surf = self.r_surf / R_s
+        self.solved = True
