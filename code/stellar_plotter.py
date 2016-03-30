@@ -178,15 +178,15 @@ def plot_star(star):
     ## We are targetting :
     ## 1. Surface Temp
     ## 2. Central density
-    ## 3. Central Temparature
+    ## 3. Central Temperature
     ## 4. Radius
     ## 5. Mass
     ## 6. Luminosity
     f = open(star_dir_name+'/profile.txt', 'w')
-    f.write('Surface Temparature = '+ repr(temp_surf) + '\n')
+    f.write('Surface Temperature = '+ repr(temp_surf) + '\n')
     f.write('Central Density = '+repr(density_c)+'\n')
     f.write('Radius = '+repr(r_surf)+'\n')
-    f.write('Mass = '+repr(mass_surf)+'\n')
+    f.write('Mass = '+repr(mass_surf/1.989e30)+'\n')
     f.write('Luminosity = '+ repr(lumin_surf) +'\n')
     f.close()
 
@@ -278,12 +278,12 @@ def plot_main_sequence(v_main_seq):
 
 if __name__ == "__main__":
     # Remember to turn off logging in adaptive_bisection.py
-    composition = [Composition.fromZX(Z, 0.73) for Z in [0.00, 0.01, 0.015, 0.02, 0.03]]
-    v_main_seq = [MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=comp, num_stars=100) for comp in composition]
-    for main_seq in v_main_seq:
-        main_seq.solve_stars()
+#    composition = [Composition.fromZX(Z, 0.73) for Z in [0.00, 0.01, 0.015, 0.02, 0.03]]
+#    v_main_seq = [MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=comp, num_stars=100) for comp in composition]
+#    for main_seq in v_main_seq:
+#        main_seq.solve_stars()
 
-    plot_main_sequence(v_main_seq)
+#    plot_main_sequence(v_main_seq)
 
     # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
     # test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
@@ -292,11 +292,11 @@ if __name__ == "__main__":
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
     # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-    # test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.75, 0.25))
+     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
 
     # test_star.solve()
     # # # test_star.log_raw(b=20)
     # test_star.log_solved_properties()
 
-    # # # plot_step_sizes(test_star)
-    # plot_star(test_star)
+   # # # plot_step_sizes(test_star)
+     plot_star(test_star)
