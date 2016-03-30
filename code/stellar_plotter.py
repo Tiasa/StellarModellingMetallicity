@@ -22,7 +22,7 @@ def plot_star(star):
     star_dir_name = "../figures/star_comp-{comp}_Tc-{temp_c}".format(comp = star.composition.file_string,temp_c=star.temp_c)
     # Previous file name
     #star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
-    star_file_name = (star_dir_name+"/{prefix}.pdf").format(prefix="{prefix}")
+    star_file_name = (star_dir_name+"/{prefix}.png").format(prefix="{prefix}")
     if not os.path.exists(os.path.dirname(star_file_name)):
         try:
             os.makedirs(os.path.dirname(star_file_name))
@@ -160,7 +160,7 @@ def plot_star(star):
     plt.title(r"Convective Stability")
     plt.xlabel(r"Radius ($r/R_*$)")
     plt.ylabel(r"$\mathrm{d}\log P/\mathrm{d}\log T$")
-    n_lPlT_labels = [r"Convective boundary $(1 - 1/\gamma)$", r"Star"]
+    n_lPlT_labels = [r"Convective boundary $(1 - 1/\gamma)^{-1}$", r"Star"]
     plots = []
     log_points = len(dlogP_dlogT)
     boundary = np.zeros(log_points)
@@ -186,7 +186,7 @@ def plot_star(star):
     f.write('Surface Temperature = '+ repr(temp_surf) + '\n')
     f.write('Central Density = '+repr(density_c)+'\n')
     f.write('Radius = '+repr(r_surf)+'\n')
-    f.write('Mass = '+repr(mass_surf/1.989e30)+'\n')
+    f.write('Mass = '+repr(mass_surf/M_s)+'\n')
     f.write('Luminosity = '+ repr(lumin_surf) +'\n')
     f.close()
 
@@ -292,7 +292,7 @@ if __name__ == "__main__":
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
     # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.73, 0.25))
+     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.65, 0.25))
 
     # test_star.solve()
     # # # test_star.log_raw(b=20)
