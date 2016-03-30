@@ -1,0 +1,25 @@
+\documentclass{article}
+\usepackage{mathmacros}
+\usepackage{siunitx}
+
+\begin{document}
+
+\[ X + Y + Z = 1 \]
+\[ \mu\tsb{ionized} = \br{2 X + \f34 Y + \f12 Z}^{-1} \]
+\[ \mu\tsb{neutral} = \br{X + \f14 Y + \f{Z}{A}}^{-1} \]
+\[ T_c \]
+\[ \rho_c \]
+\[ p(i) = a + \br{(1-i) i^2 + (i) i^{1/6}} (b - a) \]
+
+
+\[ \kappa\tsb{es} = 0.02\br{1+X} \SI{}{\m^2\per \kg} \]
+\[ \kappa\tsb{ff} = \SI{1e24}{}\br{Z + 0.0001} \rho_3^{0.7} T^{-3.5} \SI{}{\m^2\per \kg} \]
+\[ \kappa_{H^-} = \SI{2.5e-32}{}\br{Z/0.02} \rho_3^{0.5} T^{9} \SI{}{\m^2\per \kg} \]
+
+\[ \kappa\br{\rho,T} = \br{\f{1}{\kappa_{H^-}} + \f{1}{\max\br{\kappa\tsb{es},\kappa\tsb{ff}}}}^{-1} \]
+\[ \tau\br{\inf} - \tau \approx \de \tau \defined \f{\kappa \rho^2}{\abs{\dif \rho / \dif r}} \]
+\[ \der{T}{r} = - \min \begin{cases}
+    \f{3 \kappa \rho L}{16 \pi a c T^3 r^2} \\
+    \br{1- \f{1}{\gamma}} \f{T}{P}\f{GM\rho}{r^2}
+\end{cases} \]
+\end{document}

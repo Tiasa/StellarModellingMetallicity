@@ -2,16 +2,30 @@ from __future__ import division, print_function
 import numpy as np
 from progress import printProgress
 import matplotlib.pyplot as plt
+from matplotlib import rc
+# Computer modern fonts
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+rc('text', usetex=True)
 
 eval_tol_max = 0.5
 eval_tol_min = 0.02
 
-LOG = False
+LOG = True
 
 def tween(i, a, b):
     assert (0 <= i <= 1), "i needs to be normalized"
 
     return a + ((1-i) * i**(2) + (i) * i**(1/6)) * (b - a)
+
+# i_space = np.linspace(0,1,1000)
+# it = np.vectorize(tween)
+# plt.figure()
+# plt.title(r"Adaptive Precision $a=0.01, b=0.5$")
+# plt.xlabel(r"Bisection Step")
+# plt.ylabel(r"RKF Precision")
+# plt.plot(i_space, it(i_space, 0.5, 0.01))
+# plt.savefig("../figures/bisection_tween.png", format="png")
+# plt.show()
 
 def adaptive_bisection(f, a, b, precision=0.001):
     n_max = np.ceil(np.log2(abs(b-a) / precision))
