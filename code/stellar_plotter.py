@@ -8,6 +8,7 @@ from constants import gamma,mach_ep
 from composition import Composition
 from main_sequence import MainSequence
 from where_positive import where_positive
+import math
 import os
 
 # Computer modern fonts
@@ -21,7 +22,7 @@ def plot_star(star):
     star_dir_name = "../figures/star_comp-{comp}_Tc-{temp_c}".format(comp = star.composition.file_string,temp_c=star.temp_c)
     # Previous file name
     #star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
-    star_file_name = (star_dir_name+"/{prefix}.pdf").format(prefix="{prefix}")
+    star_file_name = (star_dir_name+"/{prefix}.png").format(prefix="{prefix}")
     if not os.path.exists(os.path.dirname(star_file_name)):
         try:
             os.makedirs(os.path.dirname(star_file_name))
@@ -159,7 +160,7 @@ def plot_star(star):
     plt.title(r"Convective Stability")
     plt.xlabel(r"Radius ($r/R_*$)")
     plt.ylabel(r"$\mathrm{d}\log P/\mathrm{d}\log T$")
-    n_lPlT_labels = [r"Convective boundary $(1 - 1/\gamma)$", r"Star"]
+    n_lPlT_labels = [r"Convective boundary $(1 - 1/\gamma)^{-1}$", r"Star"]
     plots = []
     log_points = len(dlogP_dlogT)
     boundary = np.zeros(log_points)
@@ -177,15 +178,15 @@ def plot_star(star):
     ## We are targetting :
     ## 1. Surface Temp
     ## 2. Central density
-    ## 3. Central Temparature
+    ## 3. Central Temperature
     ## 4. Radius
     ## 5. Mass
     ## 6. Luminosity
     f = open(star_dir_name+'/profile.txt', 'w')
-    f.write('Surface Temparature = '+ repr(temp_surf) + '\n')
+    f.write('Surface Temperature = '+ repr(temp_surf) + '\n')
     f.write('Central Density = '+repr(density_c)+'\n')
     f.write('Radius = '+repr(r_surf)+'\n')
-    f.write('Mass = '+repr(mass_surf)+'\n')
+    f.write('Mass = '+repr(mass_surf/M_s)+'\n')
     f.write('Luminosity = '+ repr(lumin_surf) +'\n')
     f.close()
 
@@ -235,11 +236,14 @@ def plot_main_sequence(v_main_seq):
     plt.title(r"Main Sequence")
     plt.xlabel(r"Temperature (K)")
     plt.ylabel(r"$L/L_{\odot}$")
-    plots = [plt.plot(main_seq.temp_surf, main_seq.n_lumin_surf, "+")[0] for main_seq in v_main_seq]
+    #eps = 1e-20
+    #blah = log()
+    blah = [math.log(x) for x in main_seq.temp_surf]
+    plots = [plt.plot(blah, main_seq.n_lumin_surf, "+")[0] for main_seq in v_main_seq]
     plt.legend(plots, labels, loc="best")
     plt.gca().invert_xaxis()
     plt.gca().set_yscale("log")
-    plt.gca().set_xscale("log")
+    #plt.gca().set_xscale("log")
     plt.savefig(main_seq_folder + "ms.pdf", format="pdf")
     plt.show()
 
@@ -274,12 +278,12 @@ def plot_main_sequence(v_main_seq):
 
 if __name__ == "__main__":
     # Remember to turn off logging in adaptive_bisection.py
-    composition = [Composition.fromZX(Z, 0.73) for Z in [0.00, 0.01, 0.015, 0.02, 0.03]]
-    v_main_seq = [MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=comp, num_stars=5) for comp in composition]
-    for main_seq in v_main_seq:
-        main_seq.solve_stars()
+#    composition = [Composition.fromZX(Z, 0.73) for Z in [0.00, 0.01, 0.015, 0.02, 0.03]]
+#    v_main_seq = [MainSequence(min_core_temp=5e6, max_core_temp=3.5e7, composition=comp, num_stars=100) for comp in composition]
+#    for main_seq in v_main_seq:
+#        main_seq.solve_stars()
 
-    plot_main_sequence(v_main_seq)
+#    plot_main_sequence(v_main_seq)
 
     # test_star = Star(temp_c = 1.5e7, density_c=1.6e5, composition=Composition.fromXY(0.69, 0.29))
     # test_star = Star(temp_c = 3e7, composition=Composition.fromXY(0.73, 0.25))
@@ -288,11 +292,11 @@ if __name__ == "__main__":
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
     # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-    # test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.75, 0.25))
+     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.65, 0.25))
 
     # test_star.solve()
     # # # test_star.log_raw(b=20)
     # test_star.log_solved_properties()
 
-    # # # plot_step_sizes(test_star)
-    # plot_star(test_star)
+   # # # plot_step_sizes(test_star)
+     plot_star(test_star)
