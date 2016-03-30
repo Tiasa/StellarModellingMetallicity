@@ -22,7 +22,7 @@ def plot_star(star):
     star_dir_name = "../figures/star_comp-{comp}_Tc-{temp_c}".format(comp = star.composition.file_string,temp_c=star.temp_c)
     # Previous file name
     #star_file_name = "../figures/{prefix}_star_comp-{comp}_Tc-{temp_c}.pdf".format(prefix = "{prefix}", comp = star.composition.file_string, temp_c = star.temp_c)
-    star_file_name = (star_dir_name+"/{prefix}.png").format(prefix="{prefix}")
+    star_file_name = (star_dir_name+"/{prefix}.pdf").format(prefix="{prefix}")
     if not os.path.exists(os.path.dirname(star_file_name)):
         try:
             os.makedirs(os.path.dirname(star_file_name))
@@ -147,6 +147,8 @@ def plot_star(star):
     plt.ylabel(r"$\log_{10}(\kappa)$")
     n_pk_labels = [r"$\kappa_{\mathrm{tot}}$", r"$\kappa_{\mathrm{es}}$", r"$\kappa_{\mathrm{ff}}$", r"$\kappa_{\mathrm{H}^-}$"]
     plots = [plt.plot(n_r, n_opacity_i)[0] for n_opacity_i in n_opacity]
+    plots[1].set_dashes([4,4])
+    plots[2].set_dashes([8,4,2,4])
     plt.axis([0,n_r[-1], np.min(n_opacity), np.max(n_opacity)])
     plt.legend(plots, n_pk_labels, loc="best")
     plt.gca().set_autoscale_on(False)
@@ -292,7 +294,7 @@ if __name__ == "__main__":
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.5, 0.1))
     # test_star = Star(temp_c = 1e8, composition=Composition.fromXY(0.73, 0.25))
     # test_star = Star(temp_c = 3.5e7, composition=Composition.fromXY(0.73, 0.25))
-     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.65, 0.25))
+     test_star = Star(temp_c = 8.23e6, composition=Composition.fromXY(0.7499999999999999, 0.25))
 
     # test_star.solve()
     # # # test_star.log_raw(b=20)
